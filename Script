@@ -1,0 +1,118 @@
+# DorukHub-Climb-1000-stairs-v2
+Script For The best auto Farm on The game roblox: Climb 1000 stairs
+
+if game.PlaceId ~= 5702593762 then return end
+
+local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
+
+local Window = Rayfield:CreateWindow({
+    Name = "DorukHub AutoFarm",
+    LoadingTitle = "By iamjustanchillguy_0",
+    LoadingSubtitle = "Rayfield GUI",
+    ConfigurationSaving = { Enabled = true, FileName = "Dorukhub Auto Farm Toggle" },
+    KeySystem = false
+})
+
+local MainTab = Window:CreateTab("Main", 4483362458)
+
+local player = game:GetService("Players").LocalPlayer
+local char = player.Character or player.CharacterAdded:Wait()
+player.CharacterAdded:Connect(function(c) char = c end)
+
+local noclip = true
+game:GetService("RunService").Stepped:Connect(function()
+    if noclip and char and char:FindFirstChild("HumanoidRootPart") then
+        for _, v in pairs(char:GetDescendants()) do
+            if v:IsA("BasePart") then
+                v.CanCollide = false
+            end
+        end
+    end
+end)
+
+local autofarm = false
+local TweenService = game:GetService("TweenService")
+local Workspace = game:GetService("Workspace")
+
+local cframe1 = CFrame.new(15.5746222, 4.49721193, 97.9579926, 0.0415305607, -0.0231929589, -0.998867989, -1.17023391e-09, 0.999730527, -0.0232129861, 0.999137223, 0.000964049541, 0.0415193699)
+local cframe2 = CFrame.new(1010.00659, 996.001709, 98.9369736, 0.27248624, 0.0611310787, -0.960215747, 2.97807112e-08, 0.997979581, 0.0635352805, 0.962159693, -0.0173125193, 0.271935701)
+
+local function createCheckPart(position)
+    local part = Instance.new("Part")
+    part.Size = Vector3.new(10, 1, 10)
+    part.Transparency = 1
+    part.Anchored = true
+    part.CanCollide = true
+    part.Position = position - Vector3.new(0,1.5,0)
+    part.Parent = Workspace
+    return part
+end
+
+local function tweenTo(targetCF)
+    if not autofarm then return end
+    if char and char:FindFirstChild("HumanoidRootPart") then
+        local hrp = char.HumanoidRootPart
+        local distance = (hrp.Position - targetCF.Position).Magnitude
+        local time = distance / 150
+        local tween = TweenService:Create(hrp, TweenInfo.new(time, Enum.EasingStyle.Linear), {CFrame = targetCF})
+        tween:Play()
+        tween.Completed:Wait()
+    end
+end
+
+spawn(function()
+    while true do
+        if autofarm then
+            tweenTo(cframe1)
+            if not autofarm then break end
+            tweenTo(cframe2)
+            if not autofarm then break end
+
+            if char and char:FindFirstChild("HumanoidRootPart") then
+                local hrp = char.HumanoidRootPart
+                local startPos = hrp.Position
+                hrp.Anchored = true
+                local checkPart = createCheckPart(startPos)
+                local touchedConn
+                touchedConn = checkPart.Touched:Connect(function(hit)
+                    if hit.Parent == char then
+                        hrp.CFrame = CFrame.new(startPos)
+                    end
+                end)
+
+                local waited = 0
+                while waited < 5 do
+                    if not autofarm then break end
+                    task.wait(0.1)
+                    waited = waited + 0.1
+                end
+
+                hrp.Anchored = false
+                touchedConn:Disconnect()
+                checkPart:Destroy()
+            else
+                task.wait(5)
+            end
+        else
+            task.wait(0.5)
+        end
+    end
+end)
+
+MainTab:CreateToggle({
+    Name = "NoClip",
+    CurrentValue = true,
+    Flag = "noclip_toggle",
+    Callback = function(value)
+        noclip = value
+    end
+})
+
+MainTab:CreateToggle({
+    Name = "AutoFarm",
+    CurrentValue = false,
+    Flag = "autofarm_toggle",
+    Callback = function(value)
+        autofarm = value
+    end
+})
